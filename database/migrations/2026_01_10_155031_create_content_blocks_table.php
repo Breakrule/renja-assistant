@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('content_blocks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('renja_subsection_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->enum('source_type', ['generated', 'manual']);
+            $table->longText('content');
+            $table->integer('version')->default(1);
+
+            $table->timestamps();
+        });
+
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('content_blocks');
+    }
+};
