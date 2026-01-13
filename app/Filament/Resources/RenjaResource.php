@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RenjaResource\Pages;
-use App\Filament\Resources\RenjaResource\RelationManagers;
 use App\Models\Renja;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,10 +12,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Hidden;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Model;
-use App\Filament\Pages\RenjaWorkspace;
 use Filament\Tables\Actions\Action;
+
 
 class RenjaResource extends Resource
 {
@@ -39,12 +37,19 @@ class RenjaResource extends Resource
                 ->default(fn() => auth()->user()->opd_id)
                 ->visible(fn() => auth()->user()->hasRole('opd')),
 
-            Forms\Components\TextInput::make('tahun')
-                ->numeric()
-                ->required(),
-
-            Forms\Components\Hidden::make('versi')
-                ->default(1),
+            Select::make('tahun')
+                ->label('Tahun Renja')
+                ->options(
+                    collect(range(
+                        now()->year - 2,   // 2 tahun ke belakang
+                        now()->year + 5    // 5 tahun ke depan
+                    ))->mapWithKeys(fn($year) => [
+                            $year => (string) $year
+                        ])
+                )
+                ->searchable()
+                ->required()
+                ->placeholder('Pilih Tahun'),
 
             Forms\Components\Hidden::make('status')
                 ->default('draft'),
@@ -82,10 +87,11 @@ class RenjaResource extends Resource
         return [
             'index' => Pages\ListRenjas::route('/'),
             'create' => Pages\CreateRenja::route('/create'),
-            'edit' => Pages\EditRenja::route('/{record}/edit'),
             'workspace' => Pages\Workspace::route('/{record}/workspace'),
+            // ❌ TIDAK ADA edit
         ];
     }
+
 
     public static function canViewAny(): bool
     {
@@ -112,5 +118,10 @@ class RenjaResource extends Resource
     {
         return auth()->user()?->hasRole('admin') ?? false;
     }
+    public static function getRecordUrl(Model $record): ?string
+    {
+        return static::getUrl('workspace', ['record' => $record]);
+    }
+
 
 }

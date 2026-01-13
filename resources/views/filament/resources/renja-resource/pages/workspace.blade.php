@@ -1,6 +1,6 @@
 <x-filament::page>
     <h2 class="text-xl font-bold mb-4">
-        Workspace Renja – {{ $renja->opd->nama_opd }} ({{ $renja->tahun }})
+        Workspace Renja – {{ $record->opd->nama_opd }} ({{ $record->tahun }})
     </h2>
 
     @foreach ($renja->sections as $section)
@@ -52,21 +52,17 @@
 
                     {{-- ACTION --}}
                     <div class="flex gap-2 mt-2">
-                        @if ($isLocked)
-                            <x-filament::button size="xs" disabled>
-                                Simpan
-                            </x-filament::button>
-                        @else
+                        @if (!$isFinal)
                             <x-filament::button size="xs" wire:click="saveContent({{ $sub->id }})">
                                 Simpan
                             </x-filament::button>
-                        @endif
 
-                        <x-filament::button size="xs"
-                            color="{{ $block && $block->manual_locked ? 'warning' : 'gray' }}"
-                            wire:click="toggleLock({{ $sub->id }})">
-                            {{ $block && $block->manual_locked ? 'Unlock Manual' : 'Lock Manual' }}
-                        </x-filament::button>
+                            <x-filament::button size="xs"
+                                color="{{ $block && $block->manual_locked ? 'warning' : 'gray' }}"
+                                wire:click="toggleLock({{ $sub->id }})">
+                                {{ $block && $block->manual_locked ? 'Unlock Manual' : 'Lock Manual' }}
+                            </x-filament::button>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -80,7 +76,7 @@
         <x-filament::button color="success" wire:click="finalizeRenja" :disabled="!$this->canFinalize()">
             Finalisasi Renja
         </x-filament::button>
-        <x-filament::button color="primary" wire:click="exportDocx">
+        <x-filament::button color="success" wire:click="exportDocx">
             Export DOCX
         </x-filament::button>
 

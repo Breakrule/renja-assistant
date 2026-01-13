@@ -7,15 +7,15 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('renja_subsections', function (Blueprint $table) {
-            $table->string('status')->default('draft')->after('tipe');
+        Schema::table('renjas', function (Blueprint $table) {
+            $table->unsignedSmallInteger('tahun')->change();
         });
     }
 
     public function down(): void
     {
-        Schema::table('renja_subsections', function (Blueprint $table) {
-            $table->dropColumn('status');
+        Schema::table('renjas', function (Blueprint $table) {
+            $table->year('tahun')->change();
         });
     }
 };

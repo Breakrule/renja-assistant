@@ -7,20 +7,22 @@ use App\Filament\Resources\RenjaResource;
 use App\Models\Renja;
 use App\Actions\Renja\GenerateRenjaDraftAction;
 use App\Actions\Renja\UpdateSubsectionStatusAction;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\ContentBlock;
 use Filament\Notifications\Notification;
 use App\Actions\Renja\ExportRenjaDocxAction;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
+use Filament\Actions\Action;
+use App\Actions\Renja\SubmitRenjaAction;
+use App\Actions\Renja\ApproveRenjaAction;
+use App\Actions\Renja\RejectRenjaAction;
+use Filament\Resources\Pages\ViewRecord;
 
 
-class Workspace extends Page
+
+class Workspace extends ViewRecord
 {
     protected static string $resource = RenjaResource::class;
-
     protected static string $view = 'filament.resources.renja-resource.pages.workspace';
-
     public ?Renja $renja = null;
     public array $contents = [];
 
@@ -28,15 +30,15 @@ class Workspace extends Page
     /**
      * Manual handle {record}
      */
-    public function mount(): void
+    public function mount(int|string $record): void
     {
-        $recordId = request()->route('record');
-
+        parent::mount($record);
+        $recordId = $record;
         if (!$recordId) {
             abort(404);
         }
 
-        $this->renja = \App\Models\Renja::with([
+        $this->renja = Renja::with([
             'opd',
             'sections.subsections.contentBlock',
         ])->findOrFail($recordId);
@@ -58,7 +60,6 @@ class Workspace extends Page
             }
         }
     }
-
 
     public function generateDraft(): void
     {
@@ -88,8 +89,10 @@ class Workspace extends Page
     {
         return $this->renja->canBeFinal();
     }
-    public function saveContent(int $subsectionId): void
+    public function saveContent(int $subsectionId, string $content): void
     {
+        $this->ensureRenjaEditable();
+
         $sub = $this->renja
             ->sections->flatMap->subsections
             ->firstWhere('id', $subsectionId);
@@ -113,19 +116,29 @@ class Workspace extends Page
             ->send();
     }
 
-
     public function toggleLock(int $subsectionId): void
     {
-        $block = ContentBlock::where('renja_subsection_id', $subsectionId)->first();
-        if (!$block)
+        $this->ensureRenjaEditable();
+
+        $sub = $this->renja
+            ->sections->flatMap->subsections
+            ->firstWhere('id', $subsectionId);
+
+        if (!$sub || $sub->status === 'final') {
             return;
+        }
+
+        $block = $sub->contentBlock;
+
+        if (!$block) {
+            return;
+        }
 
         $block->update([
             'manual_locked' => !$block->manual_locked,
         ]);
-
-        Notification::make()->title('Berhasil')->body('Status lock diperbarui.')->success()->send();
     }
+
     public function finalizeRenja(): void
     {
         if (!$this->renja->canBeFinal()) {
@@ -165,6 +178,46 @@ class Workspace extends Page
         }
 
         return Response::download($fullPath);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('submit')
+                ->label('Ajukan Renja')
+                ->visible(
+                    auth()->user()->hasRole('opd')
+                    && in_array($this->record->status, ['draft', 'rejected'])
+                )
+                ->requiresConfirmation()
+                ->action(fn() => (new SubmitRenjaAction)->execute($this->record)),
+
+            Action::make('approve')
+                ->label('Setujui')
+                ->color('success')
+                ->visible(
+                    auth()->user()->hasRole('admin')
+                    && $this->record->status === 'submitted'
+                )
+                ->requiresConfirmation()
+                ->action(fn() => (new ApproveRenjaAction)->execute($this->record)),
+
+            Action::make('reject')
+                ->label('Tolak')
+                ->color('danger')
+                ->visible(
+                    auth()->user()->hasRole('admin')
+                    && $this->record->status === 'submitted'
+                )
+                ->requiresConfirmation()
+                ->action(fn() => (new RejectRenjaAction)->execute($this->record)),
+        ];
+    }
+    protected function ensureRenjaEditable(): void
+    {
+        if (in_array($this->record->status, ['submitted', 'approved'])) {
+            throw new \RuntimeException('Renja sudah dikunci dan tidak dapat diubah.');
+        }
     }
 
 }

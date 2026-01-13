@@ -27,7 +27,7 @@ TEXT;
 
     protected function landasanHukum(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Penyusunan Renja OPD berlandaskan pada ketentuan peraturan perundang-undangan
 yang berlaku, baik di tingkat nasional maupun daerah.
 TEXT;
@@ -35,7 +35,7 @@ TEXT;
 
     protected function maksudTujuan(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Maksud penyusunan Renja ini adalah sebagai acuan pelaksanaan kegiatan OPD,
 sedangkan tujuannya untuk menjamin keterpaduan perencanaan pembangunan daerah.
 TEXT;
@@ -43,7 +43,7 @@ TEXT;
 
     protected function sistematika(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Dokumen Renja OPD ini disusun dengan sistematika yang terdiri dari lima bab,
 mulai dari pendahuluan hingga penutup.
 TEXT;

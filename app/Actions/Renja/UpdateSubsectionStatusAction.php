@@ -15,7 +15,7 @@ class UpdateSubsectionStatusAction
             return;
         }
 
-        // proteksi OPD
+        // Proteksi OPD
         if (
             auth()->user()->hasRole('opd') &&
             $renja->opd_id !== auth()->user()->opd_id
@@ -26,5 +26,13 @@ class UpdateSubsectionStatusAction
         $subsection->update([
             'status' => $status,
         ]);
+
+        // 🔒 AUTO-LOCK SAAT FINAL
+        if ($status === 'final') {
+            $subsection->contentBlock?->update([
+                'manual_locked' => true,
+            ]);
+        }
     }
+
 }

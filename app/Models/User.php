@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasRoles;
+    use HasRoles;
 
     protected $fillable = [
         'name',
@@ -16,15 +17,4 @@ class User extends Authenticatable
         'password',
         'opd_id',
     ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    // RELASI KE OPD
-    public function opd()
-    {
-        return $this->belongsTo(Opd::class);
-    }
 }

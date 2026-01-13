@@ -74,14 +74,4 @@ class Renja extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-    protected static function booted()
-    {
-        static::deleting(function ($renja) {
-            if ($renja->status === 'final') {
-                abort(403, 'Renja final tidak boleh dihapus.');
-            }
-        });
-    }
-
-
 }

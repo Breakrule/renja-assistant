@@ -8,13 +8,22 @@ use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 use App\Actions\Renja\GenerateRenjaStructureAction;
 use Illuminate\Support\Facades\DB;
-
+use App\Actions\Renja\CreateRenjaAction;
+use Illuminate\Database\Eloquent\Model;
 
 
 class CreateRenja extends CreateRecord
 {
     protected static string $resource = RenjaResource::class;
-
+    protected function handleRecordCreation(array $data): Model
+    {
+        return (new CreateRenjaAction)->execute(
+            tahun: (int) $data['tahun'],
+            opdId: (int) $data['opd_id'],
+            createdBy: auth()->id(),
+            status: 'draft'
+        );
+    }
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $user = Auth::user();
@@ -34,5 +43,13 @@ class CreateRenja extends CreateRecord
             (new GenerateRenjaStructureAction())
                 ->execute($this->record);
         });
+    }
+    /**
+     * 🔑 INI KUNCINYA
+     * Redirect ke halaman list (index), bukan edit
+     */
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
     }
 }

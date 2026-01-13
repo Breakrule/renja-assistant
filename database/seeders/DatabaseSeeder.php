@@ -2,24 +2,58 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Opd;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // =========================
+        // ROLE
+        // =========================
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $opdRole = Role::firstOrCreate(['name' => 'opd']);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // =========================
+        // OPD (UNTUK USER OPD)
+        // =========================
+        $opd = Opd::firstOrCreate(
+            ['kode_opd' => '1.01.01'],
+            [
+                'nama_opd' => 'Dinas Contoh',
+                'urusan' => 'Urusan Pemerintahan Wajib',
+                'bidang' => 'Perencanaan Infrastruktur dan Kewilayahan',
+            ]
+        );
+
+
+        // =========================
+        // ADMIN USER
+        // =========================
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('1'),
+            ]
+        );
+        $admin->assignRole($adminRole);
+
+        // =========================
+        // USER OPD
+        // =========================
+        $opdUser = User::firstOrCreate(
+            ['email' => 'opd@gmail.com'],
+            [
+                'name' => 'User OPD',
+                'password' => Hash::make('2'),
+                'opd_id' => $opd->id,
+            ]
+        );
+        $opdUser->assignRole($opdRole);
     }
 }

@@ -8,6 +8,10 @@ class GenerateRenjaStructureAction
 {
     public function execute(Renja $renja): void
     {
+        // 🔒 GUARD: jangan generate ulang
+        if ($renja->sections()->exists()) {
+            return;
+        }
         $template = [
             [
                 'kode_bab' => 'I',
