@@ -16,9 +16,8 @@ return new class extends Migration {
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->enum('source_type', ['generated', 'manual']);
-            $table->longText('content');
-            $table->integer('version')->default(1);
+            $table->string('source')->default('generated'); // 'generated' | 'manual'
+            $table->longText('content')->nullable();
 
             $table->timestamps();
         });

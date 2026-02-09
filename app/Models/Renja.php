@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Renja extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'opd_id',
@@ -51,12 +52,6 @@ class Renja extends Model
      | BUSINESS RULE
      ========================= */
 
-    // public function canBeFinal(): bool
-    // {
-    //     return !$this->programAlignments()
-    //         ->where('status', 'mismatch')
-    //         ->exists();
-    // }
     public function canBeFinal(): bool
     {
         return !$this->sections()

@@ -46,8 +46,11 @@ class GenerateRenjaDraftAction
     }
     protected function generateContentFor(\App\Models\Renja $renja, \App\Models\RenjaSubsection $sub): string
     {
+        $opdNama = $renja->opd?->nama_opd ?? 'OPD';
+        $tahun = $renja->tahun ?? date('Y');
+
         return match ($sub->kode_subbab) {
-            '1.1' => "Latar belakang penyusunan Renja {$renja->opd->nama_opd} Tahun {$renja->tahun} disusun berdasarkan RKPD dan RPJMD yang berlaku.",
+            '1.1' => "Latar belakang penyusunan Renja {$opdNama} Tahun {$tahun} disusun berdasarkan RKPD dan RPJMD yang berlaku.",
             '1.2' => "Landasan hukum penyusunan Renja ini mengacu pada peraturan perundang-undangan yang berlaku.",
             default => "Konten draft awal untuk {$sub->judul}.",
         };

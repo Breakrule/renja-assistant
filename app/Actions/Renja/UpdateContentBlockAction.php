@@ -20,7 +20,6 @@ class UpdateContentBlockAction
         // update konten utama
         $block->update([
             'content' => $newContent,
-            'version' => $block->version + 1,
         ]);
     }
 }

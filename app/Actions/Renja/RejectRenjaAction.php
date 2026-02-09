@@ -6,7 +6,7 @@ use App\Models\Renja;
 
 class RejectRenjaAction
 {
-    public function execute(Renja $renja, string $catatan = null): Renja
+    public function execute(Renja $renja): Renja
     {
         if ($renja->status !== 'submitted') {
             throw new \RuntimeException('Renja belum diajukan.');
@@ -16,7 +16,7 @@ class RejectRenjaAction
             'status' => 'rejected',
         ]);
 
-        // Catatan bisa ditambahkan nanti (log / komentar)
+        // TODO: Implement rejection notes/comments system if needed
         return $renja;
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentBlock extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'renja_subsection_id',
         'content',

@@ -70,10 +70,9 @@ class Workspace extends ViewRecord
 
     public function updateStatus(int $subsectionId, string $status): void
     {
-        $subsection = $this->renja
-            ->sections
-            ->flatMap->subsections
-            ->firstWhere('id', $subsectionId);
+        $subsection = \App\Models\RenjaSubsection::whereHas('section', function ($q) {
+            $q->where('renja_id', $this->renja->id);
+        })->find($subsectionId);
 
         if (!$subsection) {
             return;
@@ -93,9 +92,9 @@ class Workspace extends ViewRecord
     {
         $this->ensureRenjaEditable();
 
-        $sub = $this->renja
-            ->sections->flatMap->subsections
-            ->firstWhere('id', $subsectionId);
+        $sub = \App\Models\RenjaSubsection::whereHas('section', function ($q) {
+            $q->where('renja_id', $this->renja->id);
+        })->find($subsectionId);
 
         if (!$sub) {
             return;
